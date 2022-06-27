@@ -1,0 +1,78 @@
+cmake_minimum_required(VERSION 3.20.0)
+
+option(QUARTZLOG_BUILD_STATIC       "Build as a static library"                     OFF)
+option(QUARTZLOG_GENERATE_CONFIGS   "Enable generation of QuartzLogConfig.cmake"    ON)
+
+set(QUARTZLOG_LOG_LEVEL "0" CACHE STRING "Compile-time log level for logging exclusion")
+
+project(QuartzLog VERSION 1.0.0)
+
+include(GNUInstallDirs)
+
+set(QUARTZLOG_COMIPLE_DEFINITIONS)
+
+set(QUARTZLOG_SOURCE_FILES
+	"Source/Log.cpp"
+	"Source/LogTest.cpp"
+)
+
+if(WIN32)
+
+	set(QUARTZLOG_COMIPLE_DEFINITIONS ${QUARTZAPP_COMIPLE_DEFINITIONS} QUARTZLOG_WINAPI)
+	set(QUARTZLOG_WINAPI PARENT_SCOPE)
+
+	set(QUARTZLOG_SOURCE_FILES ${QUARTZLOG_SOURCE_FILES}
+		"Source/WinApi/WinApiLog.cpp"
+	)
+
+endif()
+
+if(QUARTZLOG_BUILD_STATIC)
+
+	add_library(${PROJECT_NAME} STATIC ${QUARTZLOG_SOURCE_FILES})
+
+	set(QUARTZLOG_COMIPLE_DEFINITIONS ${QUARTZLOG_COMIPLE_DEFINITIONS} QUARTZLOG_STATIC)
+
+else()
+	
+	add_library(${PROJECT_NAME} SHARED ${QUARTZLOG_SOURCE_FILES})
+
+	set(QUARTZLOG_COMIPLE_DEFINITIONS ${QUARTZLOG_COMIPLE_DEFINITIONS} QUARTZLOG_DLL)
+
+endif()
+
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
+
+target_compile_definitions(${PROJECT_NAME} PUBLIC ${QUARTZLOG_COMIPLE_DEFINITIONS})
+
+target_include_directories(${PROJECT_NAME} 
+	PUBLIC 
+		"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Include>"
+		"$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
+	PRIVATE
+		"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Source>"
+)
+
+# Generate QuartzLogConfig.cmake
+if(QUARTZLOG_GENERATE_CONFIGS)
+
+	install(
+		TARGETS ${PROJECT_NAME} 
+		DESTINATION ${CMAKE_INSTALL_LIBDIR} 
+		EXPORT ${PROJECT_NAME}-Export
+	)
+
+	install(
+		EXPORT ${PROJECT_NAME}-Export 
+		FILE ${PROJECT_NAME}Config.cmake 
+		DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}"
+	)
+
+	install(
+		DIRECTORY "${PROJECT_SOURCE_DIR}/Include/" 
+		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${QUARTZAPP_INCLUDE_PREFIX}
+	)
+
+	message("[${PROJECT_NAME}] Generating ${PROJECT_NAME}Config.cmake...")
+
+endif()
