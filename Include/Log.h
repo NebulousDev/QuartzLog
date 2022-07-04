@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Dll.h"
+#include "DLL.h"
 
 namespace Quartz
 {
