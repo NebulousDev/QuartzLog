@@ -4,6 +4,9 @@
 
 namespace Quartz
 {
+
+#ifndef QUARTZ_LOG_LEVEL_ENUM
+
 	enum LogLevel
 	{
 		LOG_LEVEL_TRACE,
@@ -13,6 +16,10 @@ namespace Quartz
 		LOG_LEVEL_ERROR,
 		LOG_LEVEL_FATAL
 	};
+
+#define QUARTZ_LOG_LEVEL_ENUM
+
+#endif
 
 	enum LogColor
 	{
@@ -70,7 +77,7 @@ namespace Quartz
 		constexpr static const Quartz::LogColor sForegroundColor = foreground; \
 		constexpr static const Quartz::LogColor sBackgroundColor = background; \
 	}; \
-	namespace _Log { constexpr LogSeverity##severity csLogSeverity##severity; }
+	namespace Quartz { namespace _Log { constexpr LogSeverity##severity csLogSeverity##severity; } }
 
 DefineLogSeverity(TEST,    "Test",    Quartz::LOG_LEVEL_TRACE,   Quartz::LOG_COLOR_DARK_CYAN, Quartz::LOG_COLOR_DEFAULT);
 DefineLogSeverity(TRACE,   "Trace",   Quartz::LOG_LEVEL_TRACE,   Quartz::LOG_COLOR_CYAN,      Quartz::LOG_COLOR_DEFAULT);
@@ -84,9 +91,9 @@ DefineLogSeverity(FATAL,   "Fatal",   Quartz::LOG_LEVEL_FATAL,   Quartz::LOG_COL
 		forground, background, format, ##__VA_ARGS__)
 
 #define Log(severity, format, ...) Quartz::Log::_Log( \
-		_Log::csLogSeverity##severity.sLevel, \
-		_Log::csLogSeverity##severity.sForegroundColor, _Log::csLogSeverity##severity.sBackgroundColor, \
-		_Log::csLogSeverity##severity.sText, format, ##__VA_ARGS__)
+		Quartz::_Log::csLogSeverity##severity.sLevel, \
+		Quartz::_Log::csLogSeverity##severity.sForegroundColor, Quartz::_Log::csLogSeverity##severity.sBackgroundColor, \
+		Quartz::_Log::csLogSeverity##severity.sText, format, ##__VA_ARGS__)
 
 #if QUARTZ_LOG_LEVEL == 0
 #define LogTest(format, ...)    Log(TEST, format, ##__VA_ARGS__)
