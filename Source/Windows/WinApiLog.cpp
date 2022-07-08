@@ -54,13 +54,13 @@ namespace Quartz
 		sDefaultLogColors = consoleInfo.wAttributes;
 		spOutputStream = pStream;
 
-		SetLogLevel((LogLevel)QUARTZ_LOG_LEVEL);
+		GetGlobalLog().SetLogLevel((LogLevel)QUARTZ_LOG_LEVEL);
 	}
 
-	void Log::_Log(LogLevel level, LogColor foreground, LogColor background, 
+	void Log::Prefixed(LogLevel level, LogColor foreground, LogColor background, 
 		const char* severityName, const char* format, ...)
 	{
-		if (level < smLogLevel) return;
+		if (level < mLogLevel) return;
 
 		static char prefixedFormat[1024] {};
 		static char currentTime[26] {};
@@ -105,9 +105,9 @@ namespace Quartz
 		delete[] pWideBuffer;
 	}
 
-	void Log::_Log(LogLevel level, LogColor foreground, LogColor background, const char* severityName, const wchar_t* format, ...)
+	void Log::Prefixed(LogLevel level, LogColor foreground, LogColor background, const char* severityName, const wchar_t* format, ...)
 	{
-		if (level < smLogLevel) return;
+		if (level < mLogLevel) return;
 
 		static wchar_t prefixedFormat[1024]{};
 		static wchar_t currentTime[26]{};
@@ -135,7 +135,7 @@ namespace Quartz
 		SetConsoleTextAttribute(hConsole, sDefaultLogColors);
 	}
 
-	void Log::_LogRaw(LogColor foreground, LogColor background, const char* format, ...)
+	void Log::Raw(LogColor foreground, LogColor background, const char* format, ...)
 	{
 		WORD forgroundColor = (foreground == LOG_COLOR_DEFAULT) ? sDefaultLogColors & 0x0F : sWin32LogColors[foreground];
 		WORD backgroundColor = (background == LOG_COLOR_DEFAULT) ? sDefaultLogColors & 0xF0 : (sWin32LogColors[background] << 4) & 0xF0;
@@ -169,7 +169,7 @@ namespace Quartz
 		delete[] pWideBuffer;
 	}
 
-	void Log::_LogRaw(LogColor foreground, LogColor background, const wchar_t* format, ...)
+	void Log::Raw(LogColor foreground, LogColor background, const wchar_t* format, ...)
 	{
 		WORD forgroundColor = (foreground == LOG_COLOR_DEFAULT) ? sDefaultLogColors & 0x0F : sWin32LogColors[foreground];
 		WORD backgroundColor = (background == LOG_COLOR_DEFAULT) ? sDefaultLogColors & 0xF0 : (sWin32LogColors[background] << 4) & 0xF0;

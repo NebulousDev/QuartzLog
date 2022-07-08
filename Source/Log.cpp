@@ -2,21 +2,42 @@
 
 namespace Quartz
 {
-	LogLevel Log::smLogLevel = LOG_LEVEL_TRACE;
+	Log sDefaultLog;
+	Log* spLog = &sDefaultLog;
+
+	Log::Log()
+	{
+		InitLogging(); //temp
+	}
+
+	Log Log::CreateLog()
+	{
+		return Log();
+	}
+
+	Log& Log::GetGlobalLog()
+	{
+		return *spLog;
+	}
+
+	void Log::SetGlobalLog(Log& logger)
+	{
+		spLog = &logger;
+	}
 
 	void Log::SetLogLevel(LogLevel level)
 	{
 		static const char* slogLevelNames[] =
 		{ "TRACE", "DEBUG", "INFO" , "WARNING" , "ERROR" , "FATAL" };
 
-		LogRaw(Quartz::LOG_COLOR_BLUE, Quartz::LOG_COLOR_DEFAULT,
+		Raw(Quartz::LOG_COLOR_BLUE, Quartz::LOG_COLOR_DEFAULT,
 			"LogLevel set to %d (%s).\n", level, slogLevelNames[level]);
 
-		smLogLevel = level;
+		mLogLevel = level;
 	}
 
 	LogLevel Log::GetLogLevel()
 	{
-		return smLogLevel;
+		return mLogLevel;
 	}
 }

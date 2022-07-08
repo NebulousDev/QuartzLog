@@ -60,13 +60,13 @@ namespace Quartz
 		//setlocale(LC_ALL, ".utf-8");
 		setlocale(LC_ALL, "en_US.UTF-8");
 		wprintf(L""); // Enforce wide printing
-		SetLogLevel((LogLevel)QUARTZ_LOG_LEVEL);
+		GetGlobalLog().SetLogLevel((LogLevel)QUARTZ_LOG_LEVEL);
 	}
 
-	void Log::_Log(LogLevel level, LogColor foreground, LogColor background,
+	void Log::Prefixed(LogLevel level, LogColor foreground, LogColor background,
 		const char* severityName, const char* format, ...)
 	{
-		if (level < smLogLevel) return;
+		if (level < mLogLevel) return;
 
 		static wchar_t prefixedFormat[1024]{};
 		static wchar_t currentTime[26]{};
@@ -89,10 +89,10 @@ namespace Quartz
 		printf("%ls", sLinuxResetLogColor);
 	}
 
-	void Log::_Log(LogLevel level, LogColor foreground, LogColor background, 
+	void Log::Prefixed(LogLevel level, LogColor foreground, LogColor background,
 		const char* severityName, const wchar_t* format, ...)
 	{
-		if (level < smLogLevel) return;
+		if (level < mLogLevel) return;
 
 		static wchar_t prefixedFormat[1024]{};
 		static wchar_t currentTime[26]{};
@@ -117,7 +117,7 @@ namespace Quartz
 		va_end(args);
 	}
 
-	void Log::_LogRaw(LogColor foreground, LogColor background, const char* format, ...)
+	void Log::Raw(LogColor foreground, LogColor background, const char* format, ...)
 	{
 		static wchar_t prefixedFormat[1024]{};
 
@@ -135,7 +135,7 @@ namespace Quartz
 		va_end(args);
 	}
 
-	void Log::_LogRaw(LogColor foreground, LogColor background, const wchar_t* format, ...)
+	void Log::Raw(LogColor foreground, LogColor background, const wchar_t* format, ...)
 	{
 		const wchar_t* forgroundColor = sLinuxForegroundLogColors[(int)foreground];
 		const wchar_t* backgroundColor = sLinuxBackgroundLogColors[(int)background];
