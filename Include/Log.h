@@ -19,11 +19,8 @@ namespace Quartz
 
 		void Prefixed(LogLevel level, LogColor foreground, LogColor background,
 			const char* severityName, const char* format, ...);
-		void Prefixed(LogLevel level, LogColor foreground, LogColor background,
-			const char* severityName, const wchar_t* format, ...);
 
 		void Raw(LogColor foreground, LogColor background, const char* format, ...);
-		void Raw(LogColor foreground, LogColor background, const wchar_t* format, ...);
 
 		void RunLogTest();
 	};

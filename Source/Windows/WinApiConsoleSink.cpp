@@ -51,6 +51,7 @@ namespace Quartz
 
 		mDefaultLogColors = consoleInfo.wAttributes;
 		mpOutputStream = pStream;
+		mhConsole = (void*)hConsole;
 	}
 
 	void WinApiConsoleSink::WritePrefixed(LogLevel level, LogColor foreground, LogColor background,
@@ -104,41 +105,6 @@ namespace Quartz
 		delete[] pWideBuffer;
 	}
 
-	void WinApiConsoleSink::WritePrefixedW(LogLevel level, LogColor foreground, LogColor background,
-		const char* severityName, const wchar_t* format, ...) const
-	{
-		va_list args;
-		va_start(args, format);
-		WritePrefixedWV(level, foreground, background, severityName, format, args);
-		va_end(args);
-	}
-
-	void WinApiConsoleSink::WritePrefixedWV(LogLevel level, LogColor foreground, LogColor background,
-		const char* severityName, const wchar_t* format, va_list args) const
-	{
-		if (level < mLogLevel) return;
-
-		static wchar_t prefixedFormat[1024]{};
-		static char currentTime[26]{};
-
-		time_t timer;
-		tm timeInfo;
-		time(&timer);
-		localtime_s(&timeInfo, &timer);
-		strftime(currentTime, 26, mPrefix, &timeInfo);
-
-		swprintf(prefixedFormat, L"[%S][%s] %ls\n", currentTime, severityName, format);
-
-		WORD forgroundColor = (foreground == LOG_COLOR_DEFAULT) ? mDefaultLogColors & 0x0F : sWin32LogColors[foreground];
-		WORD backgroundColor = (background == LOG_COLOR_DEFAULT) ? mDefaultLogColors & 0xF0 : (sWin32LogColors[background] << 4) & 0xF0;
-		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-		SetConsoleTextAttribute(hConsole, forgroundColor | backgroundColor);
-
-		vfwprintf(mpOutputStream, prefixedFormat, args);
-
-		SetConsoleTextAttribute(hConsole, mDefaultLogColors);
-	}
-
 	void WinApiConsoleSink::WriteRaw(LogColor foreground, LogColor background, const char* format, ...) const
 	{
 		va_list args;
@@ -173,26 +139,6 @@ namespace Quartz
 
 		delete[] pBuffer;
 		delete[] pWideBuffer;
-	}
-
-	void WinApiConsoleSink::WriteRawW(LogColor foreground, LogColor background, const wchar_t* format, ...) const
-	{
-		va_list args;
-		va_start(args, format);
-		WriteRawWV(foreground, background, format, args);
-		va_end(args);
-	}
-
-	void WinApiConsoleSink::WriteRawWV(LogColor foreground, LogColor background, const wchar_t* format, va_list args) const
-	{
-		WORD forgroundColor = (foreground == LOG_COLOR_DEFAULT) ? mDefaultLogColors & 0x0F : sWin32LogColors[foreground];
-		WORD backgroundColor = (background == LOG_COLOR_DEFAULT) ? mDefaultLogColors & 0xF0 : (sWin32LogColors[background] << 4) & 0xF0;
-		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-		SetConsoleTextAttribute(hConsole, forgroundColor | backgroundColor);
-
-		vfwprintf(mpOutputStream, format, args);
-
-		SetConsoleTextAttribute(hConsole, mDefaultLogColors);
 	}
 
 	bool WinApiConsoleSink::SupportsEscapeColors() const

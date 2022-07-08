@@ -19,15 +19,9 @@ namespace Quartz
 			const char* severityName, const char* format, ...) const = 0;
 		virtual void WritePrefixedV(LogLevel level, LogColor foreground, LogColor background,
 			const char* severityName, const char* format, va_list args) const = 0;
-		virtual void WritePrefixedW(LogLevel level, LogColor foreground, LogColor background,
-			const char* severityName, const wchar_t* format, ...) const = 0;
-		virtual void WritePrefixedWV(LogLevel level, LogColor foreground, LogColor background,
-			const char* severityName, const wchar_t* format, va_list args) const = 0;
 
 		virtual void WriteRaw(LogColor foreground, LogColor background, const char* format, ...) const = 0;
 		virtual void WriteRawV(LogColor foreground, LogColor background, const char* format, va_list args) const = 0;
-		virtual void WriteRawW(LogColor foreground, LogColor background, const wchar_t* format, ...) const = 0;
-		virtual void WriteRawWV(LogColor foreground, LogColor background, const wchar_t* format, va_list args) const = 0;
 
 		void SetPrefixFormat(const char* format);
 

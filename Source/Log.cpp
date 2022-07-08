@@ -33,20 +33,6 @@ namespace Quartz
 		}
 	}
 
-	void Log::Prefixed(LogLevel level, LogColor foreground, LogColor background,
-		const char* severityName, const wchar_t* format, ...)
-	{
-		for (const Sink* pSink : mSinks)
-		{
-			va_list args;
-			va_list argsCpy;
-			va_start(args, format);
-			va_copy(argsCpy, args);
-			pSink->WritePrefixedWV(level, foreground, background, severityName, format, argsCpy);
-			va_end(args);
-		}
-	}
-
 	void Log::Raw(LogColor foreground, LogColor background, const char* format, ...)
 	{
 		for (const Sink* pSink : mSinks)
@@ -56,19 +42,6 @@ namespace Quartz
 			va_start(args, format);
 			va_copy(argsCpy, args);
 			pSink->WriteRawV(foreground, background, format, argsCpy);
-			va_end(args);
-		}
-	}
-
-	void Log::Raw(LogColor foreground, LogColor background, const wchar_t* format, ...)
-	{
-		for (const Sink* pSink : mSinks)
-		{
-			va_list args;
-			va_list argsCpy;
-			va_start(args, format);
-			va_copy(argsCpy, args);
-			pSink->WriteRawWV(foreground, background, format, argsCpy);
 			va_end(args);
 		}
 	}
