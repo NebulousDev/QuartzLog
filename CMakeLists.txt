@@ -9,11 +9,14 @@ project(QuartzLog VERSION 1.0.0)
 
 include(GNUInstallDirs)
 
+set(QUARTZLOG_FOUND_LIBS)
+set(QUARTZLOG_FOUND_INCLUDES)
 set(QUARTZLOG_COMIPLE_DEFINITIONS)
 
 set(QUARTZLOG_SOURCE_FILES
 	"Source/Log.cpp"
 	"Source/LogTest.cpp"
+	"Source/Sink.cpp"
 )
 
 if(WIN32)
@@ -23,6 +26,7 @@ if(WIN32)
 
 	set(QUARTZLOG_SOURCE_FILES ${QUARTZLOG_SOURCE_FILES}
 		"Source/Windows/WinApiLog.cpp"
+		"Source/Windows/WinApiConsoleSink.cpp"
 	)
 
 elseif(UNIX)
@@ -50,6 +54,27 @@ else()
 
 endif()
 
+if(NOT ${QUARTZ_SUPERBUILD})
+
+	find_package(quartzlib QUIET)
+
+	if(${quartzlib_FOUND})
+
+		set(QUARTZLOG_FOUND_LIBS ${QUARTZLOG_FOUND_LIBS} quartzlib)
+		message("[QuartzLog] QuartzLib found: ${quartzlib_DIR}")
+
+	else()
+		message(FATAL_ERROR "[QuartzLog] QuartzLib not found but is required. Aborting.")
+	endif()
+
+else()
+
+	set(QUARTZLOG_FOUND_INCLUDES  ${QUARTZLOG_FOUND_INCLUDES} 
+		${QUARTZLIB_INCLUDE_PATH} 
+	)
+
+endif()
+
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC ${QUARTZLOG_COMIPLE_DEFINITIONS})
@@ -60,6 +85,12 @@ target_include_directories(${PROJECT_NAME}
 		"$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
 	PRIVATE
 		"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Source>"
+		${QUARTZLOG_FOUND_INCLUDES}
+)
+
+target_link_libraries(${PROJECT_NAME}
+	PUBLIC
+		${QUARTZLOG_FOUND_LIBS}
 )
 
 # Generate QuartzLogConfig.cmake
