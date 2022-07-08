@@ -1,19 +1,13 @@
 #include "Log.h"
 
+#include <cstdarg>
+
 namespace Quartz
 {
-	Log sDefaultLog;
-	Log* spLog = &sDefaultLog;
+	Log* spLog = nullptr;
 
-	Log::Log()
-	{
-		InitLogging(); //temp
-	}
-
-	Log Log::CreateLog()
-	{
-		return Log();
-	}
+	Log::Log(const Array<Sink*>& sinks) :
+		mSinks(sinks) { }
 
 	Log& Log::GetGlobalLog()
 	{
@@ -25,19 +19,57 @@ namespace Quartz
 		spLog = &logger;
 	}
 
-	void Log::SetLogLevel(LogLevel level)
+	void Log::Prefixed(LogLevel level, LogColor foreground, LogColor background,
+		const char* severityName, const char* format, ...)
 	{
-		static const char* slogLevelNames[] =
-		{ "TRACE", "DEBUG", "INFO" , "WARNING" , "ERROR" , "FATAL" };
-
-		Raw(Quartz::LOG_COLOR_BLUE, Quartz::LOG_COLOR_DEFAULT,
-			"LogLevel set to %d (%s).\n", level, slogLevelNames[level]);
-
-		mLogLevel = level;
+		for (const Sink* pSink : mSinks)
+		{
+			va_list args;
+			va_list argsCpy;
+			va_start(args, format);
+			va_copy(argsCpy, args);
+			pSink->WritePrefixedV(level, foreground, background, severityName, format, argsCpy);
+			va_end(args);
+		}
 	}
 
-	LogLevel Log::GetLogLevel()
+	void Log::Prefixed(LogLevel level, LogColor foreground, LogColor background,
+		const char* severityName, const wchar_t* format, ...)
 	{
-		return mLogLevel;
+		for (const Sink* pSink : mSinks)
+		{
+			va_list args;
+			va_list argsCpy;
+			va_start(args, format);
+			va_copy(argsCpy, args);
+			pSink->WritePrefixedWV(level, foreground, background, severityName, format, argsCpy);
+			va_end(args);
+		}
+	}
+
+	void Log::Raw(LogColor foreground, LogColor background, const char* format, ...)
+	{
+		for (const Sink* pSink : mSinks)
+		{
+			va_list args;
+			va_list argsCpy;
+			va_start(args, format);
+			va_copy(argsCpy, args);
+			pSink->WriteRawV(foreground, background, format, argsCpy);
+			va_end(args);
+		}
+	}
+
+	void Log::Raw(LogColor foreground, LogColor background, const wchar_t* format, ...)
+	{
+		for (const Sink* pSink : mSinks)
+		{
+			va_list args;
+			va_list argsCpy;
+			va_start(args, format);
+			va_copy(argsCpy, args);
+			pSink->WriteRawWV(foreground, background, format, argsCpy);
+			va_end(args);
+		}
 	}
 }

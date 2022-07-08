@@ -1,65 +1,21 @@
 #pragma once
 
-#include "DLL.h"
+#include "Sink.h"
+#include "LogLevel.h"
+#include "Types/Array.h"
 
 namespace Quartz
 {
-
-#ifndef QUARTZ_LOG_LEVEL_ENUM
-
-	enum LogLevel
-	{
-		LOG_LEVEL_TRACE,
-		LOG_LEVEL_DEBUG,
-		LOG_LEVEL_INFO,
-		LOG_LEVEL_WARNING,
-		LOG_LEVEL_ERROR,
-		LOG_LEVEL_FATAL
-	};
-
-#define QUARTZ_LOG_LEVEL_ENUM
-
-#endif
-
-	enum LogColor
-	{
-		LOG_COLOR_DEFAULT,
-		LOG_COLOR_BLACK,
-		LOG_COLOR_DARK_BLUE,
-		LOG_COLOR_DARK_GREEN,
-		LOG_COLOR_DARK_CYAN,
-		LOG_COLOR_DARK_RED,
-		LOG_COLOR_DARK_MAGENTA,
-		LOG_COLOR_DARK_YELLOW,
-		LOG_COLOR_DARK_GRAY,
-		LOG_COLOR_GRAY,
-		LOG_COLOR_BLUE,
-		LOG_COLOR_GREEN,
-		LOG_COLOR_CYAN,
-		LOG_COLOR_RED,
-		LOG_COLOR_MAGENTA,
-		LOG_COLOR_YELLOW,
-		LOG_COLOR_WHITE
-	};
-
 	class QUARTZLOG_API Log
 	{
 	private:
-		LogLevel mLogLevel = LOG_LEVEL_TRACE;
-
-		static void InitLogging();
+		Array<Sink*> mSinks;
 
 	public:
-		Log();
-
-		static Log CreateLog();
+		Log(const Array<Sink*>& sinks);
 
 		static Log& GetGlobalLog();
 		static void SetGlobalLog(Log& logger);
-
-		void SetLogLevel(LogLevel level);
-
-		void RunLogTest();
 
 		void Prefixed(LogLevel level, LogColor foreground, LogColor background,
 			const char* severityName, const char* format, ...);
@@ -69,7 +25,7 @@ namespace Quartz
 		void Raw(LogColor foreground, LogColor background, const char* format, ...);
 		void Raw(LogColor foreground, LogColor background, const wchar_t* format, ...);
 
-		LogLevel GetLogLevel();
+		void RunLogTest();
 	};
 }
 
