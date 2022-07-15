@@ -5,12 +5,29 @@ namespace Quartz
 	Sink::Sink()
 	{
 		mLogLevel = LOG_LEVEL_TRACE;
-		mPrefix = "%H:%M:%S";
+		mTimeFormat = "%H:%M:%S";
+		mLevelFormat = "%s";
+		mTextFormat = "%s";
 	}
 
-	void Sink::SetPrefixFormat(const char* format)
+	void Sink::SetTimeFormat(const char* format)
 	{
-		mPrefix = format;
+		mTimeFormat = format;
+	}
+
+	void Sink::SetLevelFormat(const char* format)
+	{
+		mLevelFormat = format;
+	}
+
+	void Sink::SetTextFormat(const char* format)
+	{
+		mTextFormat = format;
+	}
+
+	void Sink::SetFormat(const char* format)
+	{
+		mFormat = format;
 	}
 
 	void Sink::SetLogLevel(LogLevel level)

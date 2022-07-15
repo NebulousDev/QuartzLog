@@ -15,13 +15,11 @@ namespace Quartz
 	public:
 		WinApiConsoleSink();
 
-		void WritePrefixed(LogLevel level, LogColor foreground, LogColor background,
-			const char* severityName, const char* format, ...) const override;
-		void WritePrefixedV(LogLevel level, LogColor foreground, LogColor background,
-			const char* severityName, const char* format, va_list args) const override;
+		void WritePrefixed(const LogSeverity& severity, const char* format, ...) const override;
+		void WritePrefixedV(const LogSeverity& severity, const char* format, va_list args) const override;
 
-		void WriteRaw(LogColor foreground, LogColor background, const char* format, ...) const override;
-		void WriteRawV(LogColor foreground, LogColor background, const char* format, va_list args) const override;
+		void WriteRaw(const char* format, ...) const override;
+		void WriteRawV(const char* format, va_list args) const override;
 
 		bool SupportsEscapeColors() const override;
 	};
