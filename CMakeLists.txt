@@ -1,11 +1,13 @@
 cmake_minimum_required(VERSION 3.20.0)
 
 option(QUARTZLOG_BUILD_STATIC       "Build as a static library"                     OFF)
+option(QUARTZLOG_USE_COLORS			"Enable color output in sinks"                  ON)
+option(QUARTZLOG_USE_ANSI_COLORS    "Enable ANSI color output in sinks"             ON)
 option(QUARTZLOG_GENERATE_CONFIGS   "Enable generation of QuartzLogConfig.cmake"    ON)
 
 set(QUARTZLOG_LOG_LEVEL "0" CACHE STRING "Compile-time log level for logging exclusion")
 
-project(QuartzLog VERSION 1.0.0)
+project(QuartzLog VERSION 1.1.0)
 
 include(GNUInstallDirs)
 
@@ -54,6 +56,16 @@ else()
 
 endif()
 
+if(QUARTZLOG_USE_COLORS)
+
+	set(QUARTZLOG_COMIPLE_DEFINITIONS ${QUARTZLOG_COMIPLE_DEFINITIONS} QUARTZLOG_COLORS)
+
+	if(QUARTZLOG_USE_ANSI_COLORS)
+		set(QUARTZLOG_COMIPLE_DEFINITIONS ${QUARTZLOG_COMIPLE_DEFINITIONS} QUARTZLOG_ANSI)
+	endif()
+
+endif()
+
 if(NOT ${QUARTZ_SUPERBUILD})
 
 	find_package(quartzlib QUIET)
@@ -75,6 +87,8 @@ else()
 
 endif()
 
+find_package(fmt REQUIRED)
+
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC ${QUARTZLOG_COMIPLE_DEFINITIONS})
@@ -89,6 +103,8 @@ target_include_directories(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME}
+	PRIVATE
+		fmt::fmt-header-only
 	PUBLIC
 		${QUARTZLOG_FOUND_LIBS}
 )
