@@ -87,8 +87,6 @@ else()
 
 endif()
 
-find_package(fmt REQUIRED)
-
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC ${QUARTZLOG_COMIPLE_DEFINITIONS})
@@ -103,8 +101,6 @@ target_include_directories(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME}
-	PRIVATE
-		fmt::fmt-header-only
 	PUBLIC
 		${QUARTZLOG_FOUND_LIBS}
 )
