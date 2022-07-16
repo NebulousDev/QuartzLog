@@ -1,5 +1,6 @@
 #include "Sinks/Windows/WinApiConsoleSink.h"
 
+#include "Log.h"
 #include "WinApi.h"
 #include <cstdio>
 #include <fcntl.h>
@@ -57,22 +58,18 @@ namespace Quartz
 		time(&timer);
 		localtime_s(&timeInfo, &timer);
 
-		int bytes = 0;
-		bytes  = strftime(prefixBuffer, 1024, mTimeFormat, &timeInfo);
-		bytes += snprintf(prefixBuffer + bytes, 1024 - bytes, mLevelFormat, severity.GetText());
-		bytes += snprintf(prefixBuffer + bytes, 1024 - bytes, mTextFormat, format);
-		bytes += snprintf(prefixBuffer + bytes, 1024 - bytes, LOG_RESET);
-
 		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
-		int bufferSize = vsnprintf(NULL, 0, prefixBuffer, args);
+		uSize bytes = Log::ParseFormat(severity, prefixBuffer, 1024, timeInfo, mFormat, format);
+
+		uSize bufferSize = vsnprintf(NULL, 0, prefixBuffer, args);
 		if (bufferSize < 0) return; // TODO: Throw error?
 
 		char* pBuffer = new char[(LONG)bufferSize + 1]{};
 
 		vsprintf(pBuffer, prefixBuffer, args);
 
-		int wideBufferSize = MultiByteToWideChar(CP_UTF8, 0, pBuffer, -1, 0, 0);
+		uSize wideBufferSize = MultiByteToWideChar(CP_UTF8, 0, pBuffer, -1, 0, 0);
 
 		wchar_t* pWideBuffer = new wchar_t[(LONG)wideBufferSize + 1]{};
 
@@ -96,14 +93,14 @@ namespace Quartz
 	{
 		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
-		int bufferSize = vsnprintf(NULL, 0, format, args);
+		uSize bufferSize = vsnprintf(NULL, 0, format, args);
 		if (bufferSize < 0) return; // TODO: Throw error?
 
 		char* pBuffer = new char[(LONG)bufferSize + 1]{};
 
 		vsprintf(pBuffer, format, args);
 
-		int wideBufferSize = MultiByteToWideChar(CP_UTF8, 0, pBuffer, -1, 0, 0);
+		uSize wideBufferSize = MultiByteToWideChar(CP_UTF8, 0, pBuffer, -1, 0, 0);
 
 		wchar_t* pWideBuffer = new wchar_t[(LONG)wideBufferSize + 1]{};
 

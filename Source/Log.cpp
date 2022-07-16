@@ -1,6 +1,9 @@
 #include "Log.h"
 
 #include <cstdarg>
+#include <time.h>
+#include <memory>
+#include <cstring>
 
 namespace Quartz
 {
@@ -19,37 +22,15 @@ namespace Quartz
 		spLog = &logger;
 	}
 
-	void Log::Prefixed(const LogSeverity& severity, const char* format, ...)
-	{
-		for (const Sink* pSink : mSinks)
-		{
-			va_list args;
-			va_start(args, format);
-			pSink->WritePrefixedV(severity, format, args);
-			va_end(args);
-		}
-	}
-
-	void Log::Raw(const char* format, ...)
-	{
-		for (const Sink* pSink : mSinks)
-		{
-			va_list args;
-			va_start(args, format);
-			pSink->WriteRawV(format, args);
-			va_end(args);
-		}
-	}
-
-	/*
-	uSize Resolve(const char* format, const LogSeverity& severity,
-		const char* text, tm time, bool useColor, char* pBuffer, uSize buffSize)
+	// TODO: PLEASE optimize.
+	uSize Log::ParseFormat(const LogSeverity& severity, char* pBuffer, 
+		uSize bufferSize, tm time, const char* format, const char* text)
 	{
 		char* pBuffItr = pBuffer;
 
 		for (
-			const char* chr = format; 
-			chr != '\0' || (pBuffItr == pBuffer + buffSize); // Stop at end of format or end of buffer
+			const char* chr = format;
+			*chr != '\0' || (pBuffItr == pBuffer + bufferSize); // Stop at end of format or end of buffer
 			chr++)
 		{
 			if (*chr == '\\')
@@ -65,24 +46,66 @@ namespace Quartz
 			{
 				chr++;
 
-				// TODO: PLEASE optimize.
-				if (useColor && *chr == 'F' && *(chr + 1) == 'G')
+				if (*chr == 'F' && *(chr + 1) == 'G')
 				{
 					const char* fgColor = severity.GetForegroundColor();
-					uSize length = strlen(fgColor);
-					memcpy(pBuffItr, fgColor, );
-					pBuffItr += 2;
+					const uSize length = severity.GetForegroundColorSize() - 1;
+					memcpy_s(pBuffItr, ((pBuffer + bufferSize) - pBuffItr - 1), fgColor, length);
+					pBuffItr += length;
+					chr++;
 				}
 
-				// TODO: PLEASE optimize.
-				if (useColor && *chr == 'F' && *(chr + 1) == 'G')
+				else if (*chr == 'B' && *(chr + 1) == 'G')
 				{
-					const char* fgColor = severity.GetForegroundColor();
-					memcpy(pBuffItr, fgColor, strlen(fgColor));
-					pBuffItr += 2;
+					const char* bgColor = severity.GetBackgroundColor();
+					const uSize length = severity.GetBackgroundColorSize() - 1;
+					memcpy_s(pBuffItr, ((pBuffer + bufferSize) - pBuffItr - 1), bgColor, length);
+					pBuffItr += length;
+					chr++;
+				}
+
+				else if (*chr == 'H')
+				{
+					pBuffItr += strftime(pBuffItr, ((pBuffer + bufferSize) - pBuffItr - 1), "%H", &time);
+				}
+
+				else if (*chr == 'M')
+				{
+					pBuffItr += strftime(pBuffItr, ((pBuffer + bufferSize) - pBuffItr - 1), "%M", &time);
+				}
+
+				else if (*chr == 'S')
+				{
+					pBuffItr += strftime(pBuffItr, ((pBuffer + bufferSize) - pBuffItr - 1), "%S", &time);
+				}
+
+				else if (*chr == 'V')
+				{
+					const char* sevText = severity.GetText();
+					const uSize length = severity.GetTextSize() - 1;
+					int size = ((pBuffer + bufferSize) - pBuffItr - 1);
+					int val = memcpy_s(pBuffItr, size, sevText, length);
+					pBuffItr += length;
+				}
+
+				else if (*chr == 'T')
+				{
+					const uSize length = strlen(text);
+					int size = ((pBuffer + bufferSize) - pBuffItr - 1);
+					int val = memcpy_s(pBuffItr, size, text, length);
+					pBuffItr += length;
 				}
 			}
+
+			else
+			{
+				*pBuffItr = *chr;
+				pBuffItr++;
+			}
 		}
+
+		*(pBuffItr) = '\0';
+
+		return pBuffItr - pBuffer;
 	}
-	*/
 }

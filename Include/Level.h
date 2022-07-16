@@ -21,20 +21,16 @@ namespace Quartz
 
 #endif
 
-	//template<const char* _text, LogLevel _level, LogColor _fg, LogColor _bg>
 	struct QUARTZLOG_API LogSeverity
 	{
-		/*
-		constexpr const char*    text    = _text;
-		constexpr const LogLevel level   = _level;
-		constexpr const LogColor fgColor = _fg;
-		constexpr const LogColor gbColor = _bg;
-		*/
-
 	public:
 		virtual const char* GetText() const = 0;
 		virtual const LogLevel GetLevel() const = 0;
 		virtual LogColor GetForegroundColor() const = 0;
 		virtual LogColor GetBackgroundColor() const = 0;
+
+		virtual uSize GetTextSize() const = 0;
+		virtual uSize GetForegroundColorSize() const = 0;
+		virtual uSize GetBackgroundColorSize() const = 0;
 	};
 }

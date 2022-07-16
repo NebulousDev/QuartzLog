@@ -67,5 +67,7 @@ namespace Quartz
 		LogRaw(LOG_DEFAULT	     LOG_BG_DEFAULT        "\n");
 
 		LogRaw(LOG_YELLOW "\n > Log Tests Complete.\n\n");
+
+		LogRaw(LOG_RESET);
 	}
 }

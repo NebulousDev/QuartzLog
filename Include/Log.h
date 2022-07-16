@@ -1,7 +1,10 @@
 #pragma once
 
 #include "Sink.h"
+#include "Types/Types.h"
 #include "Types/Array.h"
+#include "Types/String.h"
+#include "Utility/Move.h"
 #include <time.h>
 
 namespace Quartz
@@ -12,16 +15,39 @@ namespace Quartz
 		Array<Sink*> mSinks;
 
 	public:
+		static uSize ParseFormat(const LogSeverity& severity, char* pBuffer, 
+			uSize bufferSize, tm time, const char* format, const char* text);
+
+	public:
 		Log(const Array<Sink*>& sinks);
 
 		static Log& GetGlobalLog();
 		static void SetGlobalLog(Log& logger);
 
-		void Prefixed(const LogSeverity& severity, const char* format, ...);
-		void Raw(const char* format, ...);
+		template<typename Severity, typename... Args>
+		void Prefixed(const Severity& severity, const char* format, Args... args)
+		{
+			for (const Sink* pSink : mSinks)
+			{
+				pSink->WritePrefixed(severity, format, Forward<Args>(args)...);
+			}
+		}
 
-		uSize Resolve(const char* format, const LogSeverity& severity,
-			const char* text, tm time, bool useColor, char* pBuffer, uSize buffSize);
+		template<typename... Args>
+		void Raw(const char* format, Args... args)
+		{
+			for (const Sink* pSink : mSinks)
+			{
+				pSink->WriteRaw(format, Forward<Args>(args)...);
+			}
+		}
+
+		template<typename Severity>
+		uSize Resolve(const char* format, const Severity& severity,
+			const char* textFormat, tm time, bool useColor, char* pBuffer, uSize buffSize)
+		{
+
+		}
 
 		void RunLogTest();
 	};
@@ -34,16 +60,14 @@ namespace Quartz
 #define DefineLogSeverity(severity, text, fg, bg, level) \
 	class LogSeverity##severity : public Quartz::LogSeverity \
 	{ \
-	private: \
-		constexpr static const char* sText = text; \
-		constexpr static const Quartz::LogLevel sLevel = level; \
-		constexpr static const Quartz::LogColor sFgColor = fg; \
-		constexpr static const Quartz::LogColor sBgColor = bg; \
 	public: \
-		const char* GetText() const override { return sText; } \
-		const Quartz::LogLevel GetLevel() const override { return sLevel; } \
-		Quartz::LogColor GetForegroundColor() const override { return sFgColor; } \
-		Quartz::LogColor GetBackgroundColor() const override { return sBgColor; } \
+		const char* GetText() const override { return text; } \
+		const Quartz::LogLevel GetLevel() const override { return level; } \
+		Quartz::LogColor GetForegroundColor() const override { return fg; } \
+		Quartz::LogColor GetBackgroundColor() const override { return bg; } \
+		Quartz::uSize GetTextSize() const override { return sizeof(text); } \
+		Quartz::uSize GetForegroundColorSize() const override { return sizeof(fg); } \
+		Quartz::uSize GetBackgroundColorSize() const override { return sizeof(bg); } \
 	}; \
 	namespace Quartz { namespace _Log { constexpr LogSeverity##severity csLogSeverity##severity; } }
 

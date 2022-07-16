@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Types/String.h"
+
 namespace Quartz
 {
 #if defined(QUARTZLOG_COLORS) && defined(QUARTZLOG_ANSI)
