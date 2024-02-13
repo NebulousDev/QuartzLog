@@ -76,13 +76,15 @@ namespace Quartz
 #ifdef QUARTZLOG_COLORS
 
 #ifdef QUARTZLOG_ANSI
-	DefineLogSeverity(TEST,    "Test",    LOG_DARK_CYAN, LOG_NONE, Quartz::LOG_LEVEL_TRACE);
-	DefineLogSeverity(TRACE,   "Trace",   LOG_CYAN,      LOG_NONE, Quartz::LOG_LEVEL_TRACE);
-	DefineLogSeverity(DEBUG,   "Debug",   LOG_GREEN,     LOG_NONE, Quartz::LOG_LEVEL_DEBUG);
-	DefineLogSeverity(INFO,    "Info",    LOG_WHITE,     LOG_NONE, Quartz::LOG_LEVEL_INFO);
-	DefineLogSeverity(WARNING, "Warning", LOG_YELLOW,    LOG_NONE, Quartz::LOG_LEVEL_WARNING);
-	DefineLogSeverity(ERROR,   "Error",   LOG_RED,       LOG_NONE, Quartz::LOG_LEVEL_ERROR);
-	DefineLogSeverity(FATAL,   "Fatal",   LOG_MAGENTA,   LOG_NONE, Quartz::LOG_LEVEL_FATAL);
+	DefineLogSeverity(TEST,    "Test",    LOG_DARK_CYAN,	LOG_NONE,	Quartz::LOG_LEVEL_TRACE);
+	DefineLogSeverity(TRACE,   "Trace",   LOG_CYAN,			LOG_NONE,	Quartz::LOG_LEVEL_TRACE);
+	DefineLogSeverity(DEBUG,   "Debug",   LOG_GREEN,		LOG_NONE,	Quartz::LOG_LEVEL_DEBUG);
+	DefineLogSeverity(INFO,    "Info",    LOG_WHITE,		LOG_NONE,	Quartz::LOG_LEVEL_INFO);
+	DefineLogSeverity(WARNING, "Warning", LOG_YELLOW,		LOG_NONE,	Quartz::LOG_LEVEL_WARNING);
+	DefineLogSeverity(ERROR,   "Error",   LOG_RED,			LOG_NONE,	Quartz::LOG_LEVEL_ERROR);
+	DefineLogSeverity(FATAL,   "Fatal",   LOG_MAGENTA,		LOG_NONE,	Quartz::LOG_LEVEL_FATAL);
+	DefineLogSeverity(SUCCESS, "Success", LOG_DARK_GREEN,   LOG_NONE,	Quartz::LOG_LEVEL_SUCCESS);
+	DefineLogSeverity(FAIL,    "Fail",    LOG_DARK_RED,		LOG_NONE,	Quartz::LOG_LEVEL_FAIL);
 #else
 	DefineLogSeverity(TEST,    "Test",    Quartz::LOG_LEVEL_TRACE,   Quartz::LOG_COLOR_DARK_CYAN, Quartz::LOG_COLOR_DEFAULT);
 	DefineLogSeverity(TRACE,   "Trace",   Quartz::LOG_LEVEL_TRACE,   Quartz::LOG_COLOR_CYAN,      Quartz::LOG_COLOR_DEFAULT);
@@ -128,6 +130,8 @@ namespace Quartz
 
 #if QUARTZ_LOG_LEVEL <= 2
 #define LogInfo(format, ...)    _LogPrefixed(INFO, format, ##__VA_ARGS__)
+#define LogSuccess(format, ...) _LogPrefixed(SUCCESS, format, ##__VA_ARGS__)
+#define LogFail(format, ...)    _LogPrefixed(FAIL, format, ##__VA_ARGS__)
 #else
 #define LogInfo(format, ...)
 #endif
