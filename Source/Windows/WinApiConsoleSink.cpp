@@ -47,6 +47,14 @@ namespace Quartz
 		va_end(args);
 	}
 
+	void WinApiConsoleSink::WritePrefixed(const LogSeverity& severity, const wchar_t* wformat, ...) const
+	{
+		va_list args;
+		va_start(args, wformat);
+		WritePrefixedV(severity, wformat, args);
+		va_end(args);
+	}
+
 	void WinApiConsoleSink::WritePrefixedV(const LogSeverity& severity, const char* format, va_list args) const
 	{
 		if (severity.GetLevel() < mLogLevel) return;
@@ -81,11 +89,46 @@ namespace Quartz
 		delete[] pWideBuffer;
 	}
 
+	void WinApiConsoleSink::WritePrefixedV(const LogSeverity& severity, const wchar_t* wformat, va_list args) const
+	{
+		if (severity.GetLevel() < mLogLevel) return;
+
+		static wchar_t prefixBuffer[1024]{};
+
+		time_t timer;
+		tm timeInfo;
+		time(&timer);
+		localtime_s(&timeInfo, &timer);
+
+		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+		uSize bytes = Log::ParseFormat(severity, prefixBuffer, 1024, timeInfo, mFormat, wformat);
+
+		uSize bufferSize = _vsnwprintf(NULL, 0, prefixBuffer, args);
+		if (bufferSize < 0) return; // TODO: Throw error?
+
+		wchar_t* pBuffer = new wchar_t[(LONG)bufferSize + 1]{};
+
+		wvsprintfW(pBuffer, prefixBuffer, args);
+
+		WriteConsoleW(hConsole, pBuffer, bufferSize + 1, NULL, NULL);
+
+		delete[] pBuffer;
+	}
+
 	void WinApiConsoleSink::WriteRaw(const char* format, ...) const
 	{
 		va_list args;
 		va_start(args, format);
 		WriteRawV(format, args);
+		va_end(args);
+	}
+
+	void WinApiConsoleSink::WriteRaw(const wchar_t* wformat, ...) const
+	{
+		va_list args;
+		va_start(args, wformat);
+		WriteRawV(wformat, args);
 		va_end(args);
 	}
 
@@ -110,6 +153,22 @@ namespace Quartz
 
 		delete[] pBuffer;
 		delete[] pWideBuffer;
+	}
+
+	void WinApiConsoleSink::WriteRawV(const wchar_t* wformat, va_list args) const
+	{
+		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+		uSize bufferSize = _vsnwprintf(NULL, 0, wformat, args);
+		if (bufferSize < 0) return; // TODO: Throw error?
+
+		wchar_t* pBuffer = new wchar_t[(LONG)bufferSize + 1] {};
+
+		wvsprintfW(pBuffer, wformat, args);
+
+		WriteConsoleW(hConsole, pBuffer, bufferSize + 1, NULL, NULL);
+
+		delete[] pBuffer;
 	}
 
 	bool WinApiConsoleSink::SupportsEscapeColors() const

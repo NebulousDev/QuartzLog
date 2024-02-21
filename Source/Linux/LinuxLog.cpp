@@ -60,7 +60,7 @@ namespace Quartz
 		//setlocale(LC_ALL, ".utf-8");
 		setlocale(LC_ALL, "en_US.UTF-8");
 		wprintf(L""); // Enforce wide printing
-		GetGlobalLog().SetLogLevel((LogLevel)QUARTZ_LOG_LEVEL);
+		GetInstance().SetLogLevel((LogLevel)QUARTZ_LOG_LEVEL);
 	}
 
 	void Log::Prefixed(LogLevel level, LogColor foreground, LogColor background,

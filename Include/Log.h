@@ -18,11 +18,14 @@ namespace Quartz
 		static uSize ParseFormat(const LogSeverity& severity, char* pBuffer, 
 			uSize bufferSize, tm time, const char* format, const char* text);
 
+		static uSize ParseFormat(const LogSeverity& severity, wchar_t* pBuffer,
+			uSize bufferSize, tm time, const char* format, const wchar_t* wtext);
+
 	public:
 		Log(const Array<Sink*>& sinks);
 
-		static Log& GetGlobalLog();
-		static void SetGlobalLog(Log& logger);
+		static Log& GetInstance();
+		static void SetInstance(Log& logger);
 
 		template<typename Severity, typename... Args>
 		void Prefixed(const Severity& severity, const char* format, Args... args)
@@ -30,6 +33,15 @@ namespace Quartz
 			for (const Sink* pSink : mSinks)
 			{
 				pSink->WritePrefixed(severity, format, Forward<Args>(args)...);
+			}
+		}
+
+		template<typename Severity, typename... Args>
+		void Prefixed(const Severity& severity, const wchar_t* wformat, Args... args)
+		{
+			for (const Sink* pSink : mSinks)
+			{
+				pSink->WritePrefixed(severity, wformat, Forward<Args>(args)...);
 			}
 		}
 
@@ -42,11 +54,13 @@ namespace Quartz
 			}
 		}
 
-		template<typename Severity>
-		uSize Resolve(const char* format, const Severity& severity,
-			const char* textFormat, tm time, bool useColor, char* pBuffer, uSize buffSize)
+		template<typename... Args>
+		void Raw(const wchar_t* wformat, Args... args)
 		{
-
+			for (const Sink* pSink : mSinks)
+			{
+				pSink->WriteRaw(wformat, Forward<Args>(args)...);
+			}
 		}
 
 		void RunLogTest();
@@ -105,9 +119,9 @@ namespace Quartz
 	DefineLogSeverity(FATAL,   "Fatal",   Quartz::LOG_LEVEL_FATAL,   Quartz::LOG_COLOR_DEFAULT, Quartz::LOG_COLOR_DEFAULT);
 #endif
 
-#define _LogRaw(format, ...) Quartz::Log::GetGlobalLog().Raw(format, ##__VA_ARGS__)
+#define _LogRaw(format, ...) Quartz::Log::GetInstance().Raw(format, ##__VA_ARGS__)
 
-#define _LogPrefixed(severity, format, ...) Quartz::Log::GetGlobalLog().Prefixed(\
+#define _LogPrefixed(severity, format, ...) Quartz::Log::GetInstance().Prefixed(\
 		Quartz::_Log::csLogSeverity##severity, format, ##__VA_ARGS__)
 
 #if QUARTZ_LOG_LEVEL == 0

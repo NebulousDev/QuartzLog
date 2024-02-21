@@ -16,10 +16,14 @@ namespace Quartz
 		Sink();
 
 		virtual void WritePrefixed(const LogSeverity& severity, const char* format, ...) const = 0;
+		virtual void WritePrefixed(const LogSeverity& severity, const wchar_t* wformat, ...) const = 0;
 		virtual void WritePrefixedV(const LogSeverity& severity, const char* format, va_list args) const = 0;
+		virtual void WritePrefixedV(const LogSeverity& severity, const wchar_t* wformat, va_list args) const = 0;
 
 		virtual void WriteRaw(const char* format, ...) const = 0;
+		virtual void WriteRaw(const wchar_t* wformat, ...) const = 0;
 		virtual void WriteRawV(const char* format, va_list args) const = 0;
+		virtual void WriteRawV(const wchar_t* wformat, va_list args) const = 0;
 
 		// $BG - severity background color
 		// $FG - severity foreground color
